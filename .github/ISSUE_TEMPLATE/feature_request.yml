@@ -1,0 +1,72 @@
+name: Feature request
+description: Suggest a capability or an improvement
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Some things are deliberately out of scope — CAPTCHA solving, defeating a specific vendor's
+        challenge, per-site logic, and authentication or paywall bypass. See
+        [CONTRIBUTING.md](https://github.com/prashant-cr/scrapeforge/blob/main/CONTRIBUTING.md#scope-before-you-invest-time) before writing
+        much, so a good proposal isn't declined on principle.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true
+        - label: >-
+            This does not require CAPTCHA solving, challenge bypass, authentication bypass, or
+            logic that targets one specific site.
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you hitting?
+      description: >-
+        Describe the situation rather than the solution. What are you trying to do, and where does
+        scrapeforge get in the way today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like it to do?
+      description: A sketch of the API you have in mind is welcome but not required.
+      render: python
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part does this touch?
+      options:
+        - Fetching — a new strategy, or the fallback chain
+        - Fingerprinting — user agents, headers, TLS, browser stealth
+        - Extraction — LLM parsing, selectors, preprocessing
+        - Discovery — robots.txt / sitemap.xml / llms.txt / ai.txt
+        - Configuration or the public API
+        - Documentation
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What have you tried or considered?
+      description: >-
+        Including whether you can already do this from outside the library — scrapeforge is
+        extensible on purpose, so a custom `BaseFetcher` or `BaseParser` may already cover it.
+
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Would you be willing to open a PR?
+      options:
+        - label: Yes, with a bit of guidance on where things should live.

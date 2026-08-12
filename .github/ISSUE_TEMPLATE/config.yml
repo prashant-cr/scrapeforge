@@ -1,0 +1,23 @@
+# Blank issues are disabled so reports arrive with the version, strategy, and
+# reproduction already filled in — for a library with four fetch strategies and
+# optional extras, "it doesn't work" is not actionable.
+blank_issues_enabled: false
+
+contact_links:
+  - name: A site is blocking me
+    url: https://github.com/prashant-cr/scrapeforge#responsible-use
+    about: >-
+      Usually not a bug. scrapeforge detects challenges and raises ChallengeError by design; it
+      does not solve CAPTCHAs or defeat a vendor's challenge. Open a bug report only if detection
+      or escalation itself misbehaves.
+
+  - name: Usage question
+    url: https://github.com/prashant-cr/scrapeforge#usage
+    about: >-
+      The README covers fetching, extraction, selectors, discovery, and configuration. The
+      examples/ directory has runnable scripts, and tests/test_example_sites.py is a guided
+      walkthrough against real sites.
+
+  - name: Security vulnerability
+    url: https://github.com/prashant-cr/scrapeforge/security/advisories/new
+    about: Please report privately here rather than opening a public issue.

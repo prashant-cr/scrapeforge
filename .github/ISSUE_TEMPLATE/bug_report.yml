@@ -1,0 +1,142 @@
+name: Bug report
+description: Something in scrapeforge behaves incorrectly
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report.
+
+        **Before you fill this in:** a site blocking you is usually *not* a bug — scrapeforge
+        detects challenges and raises `ChallengeError` on purpose rather than trying to defeat
+        them. File this if detection, escalation, parsing, or the API misbehaves. See
+        [CONTRIBUTING.md](https://github.com/prashant-cr/scrapeforge/blob/main/CONTRIBUTING.md#scope-before-you-invest-time) for scope.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true
+        - label: I am on the latest version of scrapeforge, or have said below why not.
+          required: true
+        - label: >-
+            I am not asking for CAPTCHA solving, challenge bypass, authentication bypass, or logic
+            targeting one specific site — those are out of scope.
+          required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: scrapeforge version
+      description: "`python -c \"import scrapeforge; print(scrapeforge.__version__)\"`"
+      placeholder: 0.2.1
+    validations:
+      required: true
+
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      placeholder: "3.12.11"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Linux
+        - macOS
+        - Windows
+        - Other / container
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: extras
+    attributes:
+      label: Installed extras
+      options:
+        - label: "`browser` (Playwright)"
+        - label: "`llm` (instructor / anthropic / openai)"
+        - label: "`tls` (tls-client)"
+        - label: Core only
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: What were you doing?
+      options:
+        - fetch() — retrieving a page
+        - scrape() — fetch plus extraction
+        - extract() — parsing content I already had
+        - discover() — robots.txt / sitemap.xml / llms.txt / ai.txt
+        - Configuration or startup
+        - Something else
+    validations:
+      required: true
+
+  - type: input
+    id: strategy
+    attributes:
+      label: Which strategy was involved?
+      description: >-
+        The value of `response.strategy_used`, or the `strategies` you configured. Leave blank if
+        it does not apply.
+      placeholder: "http, impersonate, browser"
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: >-
+        The smallest code that shows the problem. **Redact proxy credentials, cookies, API keys,
+        and authorization headers** — they are not needed to reproduce a bug, and this issue is
+        public.
+      render: python
+      placeholder: |
+        import asyncio
+        from scrapeforge import Scraper
+
+        async def main():
+            async with Scraper(strategies=["http"]) as s:
+                r = await s.fetch("https://example.com/")
+                print(r.status_code, r.strategy_used)
+
+        asyncio.run(main())
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: traceback
+    attributes:
+      label: Traceback or log output
+      description: >-
+        Full traceback if there was one. Debug logs help a lot for chain and escalation issues —
+        `logging.basicConfig(level=logging.DEBUG)`. Check the output for secrets before pasting.
+      render: text
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything else
+      description: >-
+        A proxy in use (no credentials), an unusual site shape, whether it is intermittent — any
+        detail that would help reproduce it.

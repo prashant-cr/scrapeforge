@@ -448,6 +448,12 @@ what lands on PyPI. A PyPI version number can be yanked but never reused, so the
 metadata with `twine check --strict` and installs the built wheel to confirm it imports before
 anything is uploaded.
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, what the tests expect, and the project's
+conventions — including the things that are deliberately out of scope, which is worth reading before
+you write much.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
