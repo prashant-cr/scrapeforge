@@ -9,30 +9,12 @@ from __future__ import annotations
 import pytest
 
 from scrapekit.config import FetchOptions, ScraperConfig
-from scrapekit.fetchers.browser import PlaywrightFetcher
+from scrapekit.fetchers.browser import _BROWSER_MANAGED_HEADERS, PlaywrightFetcher
 from scrapekit.fingerprint.stealth import BROWSER_TYPE_TO_FAMILY, build_init_script
 from scrapekit.fingerprint.user_agents import USER_AGENTS
 from scrapekit.models import ContentType
 
-
-def browser_available() -> bool:
-    """True only when Playwright *and* a launchable Chromium are present."""
-    try:
-        from playwright.sync_api import sync_playwright
-    except ImportError:
-        return False
-    try:
-        with sync_playwright() as pw:
-            browser = pw.chromium.launch(headless=True)
-            browser.close()
-        return True
-    except Exception:
-        return False
-
-
-requires_browser = pytest.mark.skipif(
-    not browser_available(), reason="Playwright browser not installed (run 'playwright install')"
-)
+from .helpers import requires_browser
 
 
 def make_config(**kwargs) -> ScraperConfig:
@@ -71,6 +53,71 @@ class TestProfileEngineCoherence:
         options = FetchOptions().resolve(fetcher.config)
 
         assert len({fetcher.select_profile(options).user_agent for _ in range(10)}) == 1
+
+
+class TestContextHeaders:
+    """Playwright applies ``extra_http_headers`` to *every* request in the
+    context, subresources included. Forcing our synthetic navigation headers
+    there stamped ``Sec-Fetch-Dest: document`` onto scripts and stylesheets —
+    both a glaring fingerprint tell and enough to stop JS-heavy pages loading.
+    These run without a browser, so the regression is caught even where the live
+    tests skip."""
+
+    def test_no_browser_managed_headers_are_forced_on_the_context(self):
+        fetcher = PlaywrightFetcher(make_config())
+        options = FetchOptions().resolve(fetcher.config)
+
+        kwargs, _ = fetcher._context_kwargs(options)
+        forced = {k.lower() for k in kwargs["extra_http_headers"]}
+
+        assert not (forced & _BROWSER_MANAGED_HEADERS), (
+            f"the browser generates these per request; forcing them breaks "
+            f"subresource loading: {sorted(forced & _BROWSER_MANAGED_HEADERS)}"
+        )
+
+    def test_no_fetch_metadata_leaks_onto_subresource_requests(self):
+        """The specific headers whose wrong values broke rendering."""
+        fetcher = PlaywrightFetcher(make_config())
+        options = FetchOptions().resolve(fetcher.config)
+
+        kwargs, _ = fetcher._context_kwargs(options)
+        forced = {k.lower() for k in kwargs["extra_http_headers"]}
+
+        for header in ("sec-fetch-dest", "sec-fetch-mode", "accept", "upgrade-insecure-requests"):
+            assert header not in forced
+
+    def test_caller_headers_are_still_passed_through(self):
+        fetcher = PlaywrightFetcher(make_config())
+        options = FetchOptions(headers={"X-Trace": "abc", "Authorization": "Bearer t"}).resolve(
+            fetcher.config
+        )
+
+        kwargs, _ = fetcher._context_kwargs(options)
+
+        assert kwargs["extra_http_headers"]["X-Trace"] == "abc"
+        assert kwargs["extra_http_headers"]["Authorization"] == "Bearer t"
+
+    def test_pinned_user_agent_goes_to_the_context_not_the_headers(self):
+        fetcher = PlaywrightFetcher(make_config())
+        options = FetchOptions(headers={"User-Agent": "my-crawler/1.0"}).resolve(fetcher.config)
+
+        kwargs, _ = fetcher._context_kwargs(options)
+
+        assert kwargs["user_agent"] == "my-crawler/1.0"
+        assert "User-Agent" not in kwargs["extra_http_headers"]
+
+    def test_caller_accept_language_drives_the_locale(self):
+        fetcher = PlaywrightFetcher(make_config())
+        options = FetchOptions(headers={"Accept-Language": "de-DE,de;q=0.9"}).resolve(
+            fetcher.config
+        )
+
+        kwargs, _ = fetcher._context_kwargs(options)
+
+        # Playwright derives Accept-Language from locale, so it must not also be
+        # forced as a raw header.
+        assert kwargs["locale"] == "de-DE"
+        assert "Accept-Language" not in kwargs["extra_http_headers"]
 
 
 class TestInitScript:

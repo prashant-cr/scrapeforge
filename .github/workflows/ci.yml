@@ -148,5 +148,8 @@ jobs:
       - name: Install Chromium
         run: playwright install --with-deps chromium
 
-      - name: pytest (browser, including live network tests)
-        run: pytest tests/test_browser_fetcher.py -q
+      # Everything marked `network`: the live browser tests and the
+      # example-sites walkthrough. The hermetic jobs above already covered the
+      # rest, so this is exactly the set they had to skip.
+      - name: pytest (live network tests)
+        run: pytest -m network -q

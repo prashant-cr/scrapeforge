@@ -328,10 +328,24 @@ Tests never hit a real LLM API and never depend on a live site for their asserti
 - **Browser** tests split: profile/engine coherence runs everywhere; the live rendering and stealth
   assertions are gated behind an installed browser.
 
-Five live-browser tests do reach `example.com` and `postman-echo.com`, because verifying that the
-stealth patches survive into a real page context is the entire claim being made. They are marked
-`network`, skip automatically when no browser is installed, and can be deselected with
-`-m "not network"`.
+### Learning by example
+
+`tests/test_example_sites.py` is a guided walkthrough against real public sites, written to be read
+as much as run. Each test is a small complete illustration of one capability — fetching, JSON APIs,
+schema extraction, JS rendering, being blocked — asserted against a live site, so it shows what the
+library actually does rather than what a fixture says it does:
+
+```bash
+pytest tests/test_example_sites.py -v
+```
+
+The sites are chosen deliberately: `example.com` (IANA-reserved for documentation),
+`books.toscrape.com` and `quotes.toscrape.com` (published expressly as scraping sandboxes), and
+`postman-echo.com` (a request echo service, which is the honest way to prove what actually goes on
+the wire). Nothing there scrapes a site that didn't invite it, and the politeness controls stay on.
+
+These and the live-browser tests are marked `network` — they skip when no browser is installed and
+are deselected with `-m "not network"`.
 
 ### CI
 
@@ -342,7 +356,7 @@ stealth patches survive into a real page context is the entire claim being made.
 | `lint` | `ruff check` + `ruff format --check` (ruff pinned, so a release can't turn CI red on its own) | yes |
 | `test` | Hermetic suite on Python 3.10–3.13 | yes |
 | `minimal-install` | Optional deps really are optional — imports work, missing strategies report unavailable instead of crashing, gated tests skip rather than fail | yes |
-| `browser` | Live Chromium against real sites | no — see below |
+| `browser` | Live Chromium plus the example-sites walkthrough (`-m network`) | no — see below |
 
 The browser job is `continue-on-error`. A red result there is as often an upstream outage or a
 browser-download hiccup as a defect here, so it reports without gating; the hermetic jobs are the
