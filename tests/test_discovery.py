@@ -310,6 +310,46 @@ class TestLimits:
         assert manifest.truncated is True
 
     @respx.mock
+    async def test_reports_never_claim_links_the_manifest_does_not_have(self, scraper):
+        """Sources are read in order, so a link cap can crowd out a later source.
+
+        When that happens the report must not still advertise links that were
+        dropped — a report saying "ok, 50 links" beside an empty
+        ``by_source("llms")`` is a lie about the object the caller is holding.
+        """
+        respx.get(f"{BASE}/robots.txt").mock(
+            return_value=httpx.Response(200, text=f"Sitemap: {BASE}/sitemap.xml")
+        )
+        respx.get(f"{BASE}/sitemap.xml").mock(
+            return_value=httpx.Response(200, text=urlset(*[f"{BASE}/p{i}" for i in range(50)]))
+        )
+        respx.get(f"{BASE}/llms.txt").mock(
+            return_value=httpx.Response(
+                200, text="\n".join(f"- [L{i}]({BASE}/l{i})" for i in range(50))
+            )
+        )
+        missing("/ai.txt")
+
+        scraper.config.max_discovered_links = 10
+        scraper._discoverer = None
+        manifest = await scraper.discover(BASE)
+
+        for report in manifest.reports:
+            actual = len(
+                [
+                    link
+                    for link in manifest.links
+                    if (link.found_in or link.source.value) == report.url
+                ]
+            )
+            assert report.link_count == actual, f"{report.source.value} report overstates"
+
+        llms_report = manifest.report_for("llms")
+        assert llms_report.link_count == len(manifest.by_source("llms"))
+        assert manifest.truncated is True
+        assert llms_report.detail and "kept after" in llms_report.detail
+
+    @respx.mock
     async def test_oversized_documents_are_skipped(self, scraper):
         respx.get(f"{BASE}/robots.txt").mock(
             return_value=httpx.Response(200, text=f"Sitemap: {BASE}/huge.xml")

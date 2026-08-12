@@ -339,6 +339,25 @@ class SiteDiscoverer:
         if len(deduped) > self.max_links:
             manifest.truncated = True
 
+        # Reconcile the reports with what actually survived. Sources are read in
+        # order, so a link cap filled by a large sitemap can crowd out llms.txt
+        # entirely — and a report still claiming "ok, 556 links" while
+        # by_source("llms") is empty is a lie about the object the caller holds.
+        # link_count therefore means "links from this document in this manifest".
+        surviving: dict[str, int] = {}
+        for link in manifest.links:
+            key = link.found_in or link.source.value
+            surviving[key] = surviving.get(key, 0) + 1
+        for report in manifest.reports:
+            if report.status == "ok":
+                kept = surviving.get(report.url, 0)
+                if kept < report.link_count:
+                    report.detail = (
+                        f"{report.link_count} found, {kept} kept after the "
+                        f"{self.max_links}-link limit"
+                    )
+                report.link_count = kept
+
         logger.debug(
             "discovery for %s found %d links (truncated=%s)",
             base,
