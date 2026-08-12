@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- generated nightly -->
+<rss version="2.0">
+  <channel>
+    <title>Example Shop — New Arrivals</title>
+    <link>https://shop.example/new</link>
+    <item>
+      <title>Trail Runner GTX</title>
+      <price currency="USD">149.95</price>
+    </item>
+    <item>
+      <title>Road Runner 5</title>
+      <price currency="USD">129.00</price>
+    </item>
+  </channel>
+</rss>

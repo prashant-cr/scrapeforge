@@ -1,0 +1,79 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "scrapekit"
+version = "0.1.0"
+description = "Schema-driven web scraping with layered anti-bot evasion and LLM-based extraction."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+authors = [{ name = "scrapekit contributors" }]
+keywords = ["scraping", "http", "playwright", "pydantic", "llm", "extraction"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Internet :: WWW/HTTP",
+]
+dependencies = [
+    # brotli/zstd are not optional in practice: real browsers advertise them in
+    # Accept-Encoding, so we must be able to decode what we ask for. Without the
+    # decoders httpx hands back raw compressed bytes.
+    "httpx[http2,brotli,zstd]>=0.28",
+    "curl_cffi>=0.7",
+    "pydantic>=2.6",
+    "selectolax>=0.3.21",
+    "tenacity>=8.2",
+]
+
+[project.optional-dependencies]
+browser = ["playwright>=1.44"]
+tls = ["tls-client>=1.0.1"]
+llm = ["instructor>=1.5", "anthropic>=0.40", "openai>=1.40"]
+all = [
+    "playwright>=1.44",
+    "tls-client>=1.0.1",
+    "instructor>=1.5",
+    "anthropic>=0.40",
+    "openai>=1.40",
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "respx>=0.21",
+    "ruff>=0.6",
+]
+
+[project.urls]
+Homepage = "https://github.com/your-org/scrapekit"
+Issues = "https://github.com/your-org/scrapekit/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["scrapekit"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+filterwarnings = ["error::DeprecationWarning:scrapekit.*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+# Markdown is documentation, not source. Keep the formatter out of CLAUDE.md/README.md.
+extend-exclude = ["*.md"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM", "RUF"]
+ignore = ["B008"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E501"]
+# User-agent strings are single tokens; wrapping them hurts readability more than
+# it helps, and a mangled UA is a real bug.
+"scrapekit/fingerprint/user_agents.py" = ["E501"]

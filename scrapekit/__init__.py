@@ -1,0 +1,57 @@
+"""scrapekit — schema-driven scraping with layered evasion and LLM extraction.
+
+Quick start::
+
+    from pydantic import BaseModel
+    from scrapekit import Scraper
+
+    class Product(BaseModel):
+        name: str
+        price: float
+
+    scraper = Scraper(llm_provider="anthropic", llm_model="claude-opus-5")
+    product = await scraper.scrape("https://shop.example/p/1", schema=Product)
+
+You are responsible for complying with each site's Terms of Service, applicable
+law, and data-protection rules. See the README's responsible-use section.
+"""
+
+from __future__ import annotations
+
+from .client import Scraper
+from .config import FetchOptions, ScraperConfig
+from .exceptions import (
+    AllStrategiesFailed,
+    ChallengeError,
+    ConfigError,
+    FetchError,
+    ParseError,
+    ProxyError,
+    ScrapekitError,
+)
+from .fetchers.base import BaseFetcher
+from .fetchers.chain import FallbackChain, register_fetcher
+from .models import ContentType, FetchResponse
+from .parsers.base import BaseParser
+
+__version__ = "0.1.0"
+
+__all__ = [
+    "AllStrategiesFailed",
+    "BaseFetcher",
+    "BaseParser",
+    "ChallengeError",
+    "ConfigError",
+    "ContentType",
+    "FallbackChain",
+    "FetchError",
+    "FetchOptions",
+    "FetchResponse",
+    "ParseError",
+    "ProxyError",
+    "ScrapekitError",
+    "Scraper",
+    "ScraperConfig",
+    "__version__",
+    "register_fetcher",
+]

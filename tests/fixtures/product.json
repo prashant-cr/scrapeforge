@@ -1,0 +1,17 @@
+{
+  "meta": { "requestId": "req_0001", "cached": false },
+  "product": {
+    "title": "Trail Runner GTX",
+    "brand": "Example Athletics",
+    "tags": ["waterproof", "trail", "gore-tex"],
+    "offers": [
+      { "price": 149.95, "currency": "USD", "condition": "new", "inStock": true },
+      { "price": 119.95, "currency": "USD", "condition": "refurbished", "inStock": false }
+    ]
+  },
+  "related": [
+    { "title": "Road Runner 5" },
+    { "title": "Approach Mid" },
+    { "title": "Camp Slide" }
+  ]
+}
