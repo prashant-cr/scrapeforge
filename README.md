@@ -375,7 +375,7 @@ One-time setup on PyPI and TestPyPI (Your projects → Publishing → Add a pend
 |---|---|
 | PyPI project name | `scrapesmith` |
 | Owner | `prashant-cr` |
-| Repository | `scrapekit` |
+| Repository | `scrapesmith` |
 | Workflow | `release.yml` |
 | Environment | `pypi` (or `testpypi` on test.pypi.org) |
 

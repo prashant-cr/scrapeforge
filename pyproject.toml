@@ -69,10 +69,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/prashant-cr/scrapekit"
-Source = "https://github.com/prashant-cr/scrapekit"
-Issues = "https://github.com/prashant-cr/scrapekit/issues"
-Changelog = "https://github.com/prashant-cr/scrapekit/releases"
+Homepage = "https://github.com/prashant-cr/scrapesmith"
+Source = "https://github.com/prashant-cr/scrapesmith"
+Issues = "https://github.com/prashant-cr/scrapesmith/issues"
+Changelog = "https://github.com/prashant-cr/scrapesmith/releases"
 
 [tool.hatch.build.targets.wheel]
 packages = ["scrapesmith"]
