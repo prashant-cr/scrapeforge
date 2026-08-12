@@ -216,21 +216,50 @@ class TestRateLimiting:
 
     @respx.mock
     async def test_limits_are_per_host_not_global(self):
-        respx.get("https://a.example/x").mock(return_value=httpx.Response(200, text="a"))
-        respx.get("https://b.example/x").mock(return_value=httpx.Response(200, text="b"))
+        """Two hosts must run concurrently rather than queueing behind each other.
+
+        Measured against the delay itself rather than a fixed wall-clock bound: a
+        threshold like "under 50ms" is really asserting the machine is fast, and
+        fails on a loaded CI runner for reasons that have nothing to do with the
+        behaviour under test.
+
+        The same-host case is measured too, so the test proves its own timing is
+        sensitive enough to detect queueing before concluding that none occurred.
+        """
+        delay = 0.4
+        # Distinct hosts per phase: a host that has just been used carries a
+        # pending delay, so reusing one would make the second measurement
+        # reflect leftover state from the first rather than the property here.
+        for host in ("same", "first", "second"):
+            respx.get(f"https://{host}.example/x").mock(return_value=httpx.Response(200, text=host))
         s = Scraper(
             strategies=["http"],
             respect_robots=False,
             max_concurrency_per_domain=1,
-            min_delay=0.05,
-            max_delay=0.05,
+            min_delay=delay,
+            max_delay=delay,
+        )
+        clock = asyncio.get_running_loop().time
+
+        # Control: two requests to one host. The second must wait out the delay.
+        start = clock()
+        await asyncio.gather(*(s.fetch("https://same.example/x") for _ in range(2)))
+        same_host = clock() - start
+        assert same_host >= delay, (
+            f"same-host requests should be spaced by {delay}s but took {same_host:.3f}s — "
+            "the timing here is not sensitive enough for the assertion below to mean anything"
         )
 
-        start = asyncio.get_running_loop().time()
-        await asyncio.gather(s.fetch("https://a.example/x"), s.fetch("https://b.example/x"))
-        elapsed = asyncio.get_running_loop().time() - start
-
-        assert elapsed < 0.05, "different hosts must not queue behind each other"
+        # The real check: two untouched hosts hold separate queues, so neither waits.
+        start = clock()
+        await asyncio.gather(
+            s.fetch("https://first.example/x"), s.fetch("https://second.example/x")
+        )
+        cross_host = clock() - start
+        assert cross_host < delay / 2, (
+            f"different hosts queued behind each other: {cross_host:.3f}s, "
+            f"versus {same_host:.3f}s for the same host"
+        )
 
 
 class TestExtract:
