@@ -26,6 +26,8 @@ product = await scraper.scrape("https://shop.example/p/1", schema=Product)
 - **Provider-agnostic.** OpenAI, Anthropic, Ollama, or any OpenAI-compatible endpoint.
 - **Everything configurable.** Proxies, headers, cookies, timeouts, retries, strategy order — per
   client and per request.
+- **Link discovery.** Reads `robots.txt`, `sitemap.xml`, `llms.txt`, and `ai.txt` to find what a
+  site publishes, before you scrape any of it.
 - **Async-first**, with sync mirrors for callers who don't want async.
 
 ---
@@ -76,7 +78,20 @@ resp.status_code
 resp.strategy_used  # "http" | "impersonate" | "tls" | "browser"
 ```
 
-### 3. Extract from content you already have
+### 3. Discover what a site publishes
+
+```python
+manifest = await scraper.discover("https://example.com")
+
+manifest.page_urls              # every page URL advertised
+manifest.by_source("llms")      # just the curated llms.txt links
+manifest.robots.sitemaps        # Sitemap: directives
+manifest.robots.crawl_delay
+manifest.ai.disallows_everything
+manifest.truncated              # did a limit cut the walk short?
+```
+
+### 4. Extract from content you already have
 
 ```python
 product = await scraper.extract(resp.text, schema=Product, content_type="html")
@@ -207,6 +222,42 @@ class MyFetcher(BaseFetcher):
 
 Scraper(strategies=["mine", "browser"])
 ```
+
+---
+
+## How discovery works
+
+`scraper.discover(url)` reads the four conventions a site can use to advertise its own content:
+
+| File | What is read |
+|---|---|
+| `robots.txt` | `Sitemap:` directives, plus the crawl rules and `Crawl-delay` for your agent |
+| `sitemap.xml` | `<urlset>` pages with `lastmod`/`changefreq`/`priority`, and `<sitemapindex>` children — followed recursively, gzip included |
+| `llms.txt` | Markdown links, each keeping its `##` section and description |
+| `ai.txt` | AI-training permissions; unmodelled directives are kept rather than dropped |
+
+Results merge into one `SiteManifest`, de-duplicated across sources, with every link tagged by where
+it came from.
+
+**This is discovery, not crawling.** Links are returned, never followed — nothing fetches a page you
+did not ask for. It is a cheap way to see what a site offers before committing to scrape it.
+
+A few decisions worth knowing:
+
+- **A missing file is not an error.** Most sites publish none of these. Each attempt lands in
+  `manifest.reports` with `not_found` / `ok` / `error`, so absence is distinguishable from breakage.
+  One broken source never stops the others.
+- **Every limit is explicit and reported.** Sitemap indexes nest, individual sitemaps run to 50MB
+  and 50,000 URLs, and two indexes can point at each other. Depth, document count, link count, and
+  document size are all bounded, and `manifest.truncated` tells you when a bound was hit — a capped
+  result is never silently mistaken for a complete one.
+- **robots.txt is preferred over guessing.** Conventional sitemap paths are only tried when
+  `robots.txt` names none, so a normal run does not spray 404s at a site.
+- **The well-known files themselves bypass the robots check.** They exist to be read by crawlers,
+  and a `robots.txt` forbidding `robots.txt` is incoherent. Your robots policy still governs
+  anything you go on to scrape.
+- **Sitemap XML with a DTD is rejected outright**, closing XXE and entity-expansion attacks without
+  adding a hardened XML dependency — a sitemap has no legitimate reason to declare one.
 
 ---
 

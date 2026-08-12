@@ -1,0 +1,12 @@
+# Example robots policy
+User-agent: *
+Disallow: /private/
+Disallow: /tmp/
+Allow: /private/public-note
+Crawl-delay: 2
+
+User-agent: BadBot
+Disallow: /
+
+Sitemap: https://example.com/sitemap.xml
+Sitemap: /relative-sitemap.xml

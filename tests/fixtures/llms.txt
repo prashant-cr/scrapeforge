@@ -1,0 +1,19 @@
+# Example Corp
+
+> Everything an assistant needs to answer questions about Example Corp.
+
+Some prose that mentions https://example.com/prose-link inline.
+
+## Docs
+
+- [Getting started](https://example.com/docs/start): Install and first request
+- [API reference](/docs/api): Every endpoint
+- [Duplicate](https://example.com/docs/start): should not appear twice
+
+## Optional
+
+- [Changelog](https://example.com/changelog)
+
+```
+- [Not a link](https://example.com/inside-a-code-fence)
+```

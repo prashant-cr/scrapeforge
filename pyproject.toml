@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scrapeforge"
-version = "0.1.0"
+version = "0.2.0"
 description = "Schema-driven web scraping with layered anti-bot evasion and LLM-based extraction."
 readme = "README.md"
 license = "MIT"

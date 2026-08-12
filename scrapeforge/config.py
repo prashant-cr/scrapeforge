@@ -125,6 +125,23 @@ class ScraperConfig(BaseModel):
     )
     max_delay: float = Field(default=1.5, ge=0, description="Upper bound for the randomized delay.")
 
+    # --- discovery ---------------------------------------------------------
+    max_discovered_links: int = Field(
+        default=10_000,
+        gt=0,
+        description="Ceiling on links returned by Scraper.discover().",
+    )
+    max_sitemap_documents: int = Field(
+        default=20,
+        gt=0,
+        description="Ceiling on sitemap files fetched per discovery, indexes included.",
+    )
+    max_sitemap_depth: int = Field(
+        default=3,
+        ge=0,
+        description="How far to follow nested sitemap indexes.",
+    )
+
     @field_validator("strategies")
     @classmethod
     def _non_empty_strategies(cls, value: list[str]) -> list[str]:

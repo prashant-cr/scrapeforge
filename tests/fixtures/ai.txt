@@ -1,0 +1,10 @@
+# AI usage policy
+User-Agent: *
+Disallow: /members/
+Allow: /blog/
+
+User-Agent: GPTBot
+Disallow: /
+
+DisallowAITraining: /
+Contact: ai@example.com

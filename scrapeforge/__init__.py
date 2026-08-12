@@ -20,6 +20,15 @@ from __future__ import annotations
 
 from .client import Scraper
 from .config import FetchOptions, ScraperConfig
+from .discovery import (
+    AiTxtInfo,
+    DiscoveredLink,
+    LinkSource,
+    RobotsInfo,
+    SiteDiscoverer,
+    SiteManifest,
+    SourceReport,
+)
 from .exceptions import (
     AllStrategiesFailed,
     ChallengeError,
@@ -34,24 +43,31 @@ from .fetchers.chain import FallbackChain, register_fetcher
 from .models import ContentType, FetchResponse
 from .parsers.base import BaseParser
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
+    "AiTxtInfo",
     "AllStrategiesFailed",
     "BaseFetcher",
     "BaseParser",
     "ChallengeError",
     "ConfigError",
     "ContentType",
+    "DiscoveredLink",
     "FallbackChain",
     "FetchError",
     "FetchOptions",
     "FetchResponse",
+    "LinkSource",
     "ParseError",
     "ProxyError",
+    "RobotsInfo",
     "ScrapeforgeError",
     "Scraper",
     "ScraperConfig",
+    "SiteDiscoverer",
+    "SiteManifest",
+    "SourceReport",
     "__version__",
     "register_fetcher",
 ]

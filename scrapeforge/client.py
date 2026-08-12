@@ -13,6 +13,7 @@ from typing import Any, TypeVar
 from pydantic import BaseModel
 
 from .config import FetchOptions, ScraperConfig
+from .discovery import SiteDiscoverer, SiteManifest
 from .exceptions import ConfigError, ScrapeforgeError
 from .fetchers.chain import FallbackChain
 from .models import ContentType, FetchResponse
@@ -70,6 +71,7 @@ class Scraper:
             max_delay=self.config.max_delay,
         )
         self._llm_parser: LLMParser | None = None
+        self._discoverer: SiteDiscoverer | None = None
 
     # -- lifecycle ---------------------------------------------------------
 
@@ -186,6 +188,60 @@ class Scraper:
         async with self.limiter.slot(url):
             return await self.chain.fetch(url, resolved)
 
+    @property
+    def discoverer(self) -> SiteDiscoverer:
+        """The shared site discoverer, constructed on first use."""
+        if self._discoverer is None:
+            self._discoverer = SiteDiscoverer(
+                self.fetch,
+                max_sitemap_documents=self.config.max_sitemap_documents,
+                max_depth=self.config.max_sitemap_depth,
+                max_links=self.config.max_discovered_links,
+            )
+        return self._discoverer
+
+    async def discover(
+        self,
+        url: str,
+        *,
+        sources: Any = None,
+        follow_sitemap_index: bool = True,
+        include_llms_full: bool = False,
+    ) -> SiteManifest:
+        """Read a site's well-known files and return the links they advertise.
+
+        Consults ``robots.txt`` (for its ``Sitemap:`` directives and rules),
+        ``sitemap.xml`` (following nested indexes), ``llms.txt``, and ``ai.txt``.
+        This is discovery, not crawling: the links are returned, never followed,
+        so nothing here fetches a page you did not ask for.
+
+        Args:
+            url: Any URL on the target site; only its origin is used.
+            sources: Which files to consult — any of ``"robots"``, ``"sitemap"``,
+                ``"llms"``, ``"ai"``. Defaults to all four.
+            follow_sitemap_index: Descend into nested sitemap indexes.
+            include_llms_full: Also read ``/llms-full.txt``.
+
+        Returns:
+            A :class:`~scrapeforge.discovery.models.SiteManifest`. Missing files
+            are normal and are recorded in ``.reports`` rather than raised;
+            ``.truncated`` tells you whether a limit cut the walk short.
+
+        Example::
+
+            manifest = await scraper.discover("https://example.com")
+            for link in manifest.by_source("llms"):
+                print(link.section, link.title, link.url)
+        """
+        from .discovery import DEFAULT_SOURCES
+
+        return await self.discoverer.discover(
+            url,
+            sources=DEFAULT_SOURCES if sources is None else sources,
+            follow_sitemap_index=follow_sitemap_index,
+            include_llms_full=include_llms_full,
+        )
+
     async def scrape(
         self,
         url: str,
@@ -275,6 +331,10 @@ class Scraper:
     def fetch_sync(self, url: str, **options: Any) -> FetchResponse:
         """Synchronous mirror of :meth:`fetch`."""
         return self._run(self.fetch(url, **options))
+
+    def discover_sync(self, url: str, **kwargs: Any) -> SiteManifest:
+        """Synchronous mirror of :meth:`discover`."""
+        return self._run(self.discover(url, **kwargs))
 
     def scrape_sync(self, url: str, schema: type[SchemaT], **kwargs: Any) -> SchemaT:
         """Synchronous mirror of :meth:`scrape`."""
