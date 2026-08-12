@@ -1,0 +1,152 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A new push to the same branch supersedes the run in flight.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # The suite must never reach a real provider. Every test passes an explicit
+  # fake key; blanking these stops a runner-level credential from silently
+  # turning a mocked test into a billed one.
+  ANTHROPIC_API_KEY: ""
+  OPENAI_API_KEY: ""
+  PYTHONUNBUFFERED: "1"
+  FORCE_COLOR: "1"
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Pinned deliberately: ruff's formatter and rule set move between
+      # releases, and an unpinned linter turns CI red on days nobody touched
+      # this repo. Bump this together with the floor in pyproject.toml.
+      - name: Install ruff
+        run: pip install ruff==0.16.2
+
+      - name: ruff check
+        run: ruff check --output-format=github .
+
+      - name: ruff format
+        run: ruff format --check --diff .
+
+  test:
+    name: test (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      # One version failing should not hide the state of the others.
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      # The browser extra is deliberately absent: the live browser tests get
+      # their own job, and without Playwright installed they skip themselves.
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,llm,tls]"
+
+      - name: Verify optional extras are importable
+        run: |
+          python -c "import instructor, anthropic, openai; print('llm extra ok')"
+          python -c "import tls_client; print('tls extra ok')"
+
+      - name: pytest (hermetic)
+        run: pytest -m "not network" -q
+
+  minimal-install:
+    name: minimal install (core only)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      # Guards the promise that optional dependencies stay optional: importing
+      # scrapekit must not require an LLM SDK, Playwright, or tls-client, and a
+      # strategy whose dependency is missing must skip rather than explode.
+      - name: Install core + test tooling only
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install pytest pytest-asyncio respx
+
+      - name: Import without any optional extra
+        run: |
+          python - <<'PY'
+          import importlib.util, sys
+          for absent in ("playwright", "tls_client", "instructor", "anthropic", "openai"):
+              assert importlib.util.find_spec(absent) is None, f"{absent} unexpectedly installed"
+          import scrapekit
+          s = scrapekit.Scraper(strategies=["http", "impersonate", "browser"])
+          available = s.chain.describe()
+          print("strategy availability:", available)
+          assert available["http"] and available["impersonate"], "core strategies must work"
+          assert not available["browser"], "browser must report unavailable, not crash"
+          PY
+
+      - name: pytest (extras absent — gated tests must skip, not fail)
+        run: pytest -m "not network" -q
+
+  browser:
+    name: browser (live)
+    runs-on: ubuntu-latest
+    # These launch a real Chromium against third-party sites, so a red result
+    # here is as often an upstream outage or a browser-download hiccup as a
+    # defect in this repo. It reports without gating: the hermetic jobs above
+    # are the blocking signal.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,llm,tls,browser]"
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
+          restore-keys: playwright-${{ runner.os }}-
+
+      - name: Install Chromium
+        run: playwright install --with-deps chromium
+
+      - name: pytest (browser, including live network tests)
+        run: pytest tests/test_browser_fetcher.py -q

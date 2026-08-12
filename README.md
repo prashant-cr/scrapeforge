@@ -307,7 +307,8 @@ Good behaviour is the default, and the defaults are deliberately conservative:
 uv venv && uv pip install -e ".[dev,browser,llm,tls]"
 playwright install chromium
 
-pytest
+pytest                      # everything, including the live browser tests
+pytest -m "not network"     # hermetic — no third-party host is touched
 ruff check . && ruff format --check .
 ```
 
@@ -327,9 +328,26 @@ Tests never hit a real LLM API and never depend on a live site for their asserti
 - **Browser** tests split: profile/engine coherence runs everywhere; the live rendering and stealth
   assertions are gated behind an installed browser.
 
-Two live-browser tests do reach `example.com` and `postman-echo.com`, because verifying that the
-stealth patches survive into a real page context is the entire claim being made. They skip
-automatically when no browser is installed.
+Five live-browser tests do reach `example.com` and `postman-echo.com`, because verifying that the
+stealth patches survive into a real page context is the entire claim being made. They are marked
+`network`, skip automatically when no browser is installed, and can be deselected with
+`-m "not network"`.
+
+### CI
+
+`.github/workflows/ci.yml` runs four jobs on every push and pull request:
+
+| Job | What it guards | Blocking |
+|---|---|---|
+| `lint` | `ruff check` + `ruff format --check` (ruff pinned, so a release can't turn CI red on its own) | yes |
+| `test` | Hermetic suite on Python 3.10–3.13 | yes |
+| `minimal-install` | Optional deps really are optional — imports work, missing strategies report unavailable instead of crashing, gated tests skip rather than fail | yes |
+| `browser` | Live Chromium against real sites | no — see below |
+
+The browser job is `continue-on-error`. A red result there is as often an upstream outage or a
+browser-download hiccup as a defect here, so it reports without gating; the hermetic jobs are the
+real signal. Provider API keys are blanked at the workflow level so a runner-level credential can
+never turn a mocked test into a billed one.
 
 ## License
 

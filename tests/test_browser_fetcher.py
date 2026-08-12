@@ -97,7 +97,15 @@ class TestInitScript:
 
 
 @requires_browser
+@pytest.mark.network
 class TestLiveBrowser:
+    """Drives a real browser against real sites.
+
+    Verifying that the stealth evasions survive into a live page context is the
+    whole claim being made, so these cannot be faked away — but they are marked
+    ``network`` so CI and offline runs can deselect them.
+    """
+
     async def test_get_renders_and_decodes(self):
         fetcher = PlaywrightFetcher(make_config())
         options = FetchOptions(wait_until="domcontentloaded").resolve(fetcher.config)

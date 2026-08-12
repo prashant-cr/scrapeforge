@@ -60,6 +60,10 @@ packages = ["scrapekit"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+addopts = "--strict-markers"
+markers = [
+    "network: reaches a third-party host. Deselect with -m 'not network' for a hermetic run.",
+]
 filterwarnings = ["error::DeprecationWarning:scrapekit.*"]
 
 [tool.ruff]
