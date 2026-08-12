@@ -3,6 +3,8 @@
 Thanks for taking the time. This document covers how to get set up, what the tests expect, and the
 few conventions that keep the codebase coherent.
 
+Participation is governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
+
 ## Scope, before you invest time
 
 scrapeforge is a general-purpose tool, and some things are deliberately out of scope. Knowing this

@@ -452,7 +452,7 @@ anything is uploaded.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, what the tests expect, and the project's
 conventions — including the things that are deliberately out of scope, which is worth reading before
-you write much.
+you write much. Participation is governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## License
 
