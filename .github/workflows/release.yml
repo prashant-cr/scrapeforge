@@ -64,11 +64,11 @@ jobs:
           /tmp/check/bin/pip install --quiet dist/*.whl
           # Run from / so the source tree cannot shadow the installed package.
           cd / && /tmp/check/bin/python -c "
-          import pathlib, scrapesmith
-          loc = pathlib.Path(scrapesmith.__file__).parent
+          import pathlib, scrapeforge
+          loc = pathlib.Path(scrapeforge.__file__).parent
           assert 'site-packages' in str(loc), f'imported from source: {loc}'
           assert (loc / 'py.typed').exists(), 'py.typed marker missing from the wheel'
-          print('wheel ok:', scrapesmith.__version__, loc)
+          print('wheel ok:', scrapeforge.__version__, loc)
           "
 
       - uses: actions/upload-artifact@v4
@@ -85,7 +85,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/scrapesmith
+      url: https://test.pypi.org/p/scrapeforge
     permissions:
       id-token: write # OIDC for Trusted Publishing. No token is stored anywhere.
     steps:
@@ -109,7 +109,7 @@ jobs:
       # Point a GitHub environment protection rule at this name if you want a
       # manual approval gate before anything reaches PyPI permanently.
       name: pypi
-      url: https://pypi.org/p/scrapesmith
+      url: https://pypi.org/p/scrapeforge
     permissions:
       id-token: write
     steps:

@@ -1,4 +1,4 @@
-"""A guided walkthrough of scrapesmith against real, public example sites.
+"""A guided walkthrough of scrapeforge against real, public example sites.
 
 This file is meant to be *read*, not just run. Every test is a small, complete
 illustration of one capability, asserted against a live site rather than a
@@ -34,7 +34,7 @@ import re
 import pytest
 from pydantic import BaseModel, Field, field_validator
 
-from scrapesmith import ChallengeError, ContentType, Scraper
+from scrapeforge import ChallengeError, ContentType, Scraper
 
 from .helpers import requires_browser
 
@@ -173,14 +173,14 @@ class TestJsonApis:
                 ECHO_POST,
                 method="POST",
                 json={"q": "shoes", "size": 42},
-                headers={"X-Scrapesmith-Example": "1"},
+                headers={"X-Scrapeforge-Example": "1"},
             )
 
         payload = response.json()
         assert payload["data"] == {"q": "shoes", "size": 42}
         # Header casing varies by server; HTTP headers are case-insensitive.
         seen = {k.lower(): v for k, v in payload["headers"].items()}
-        assert seen["x-scrapesmith-example"] == "1"
+        assert seen["x-scrapeforge-example"] == "1"
 
     async def test_the_headers_we_actually_send_look_like_a_browser(self, scraper):
         """Proof, from the far end, that the fingerprint work reaches the wire."""
@@ -325,7 +325,7 @@ class TestBeingBlocked:
         """A 403 with a stub body is treated as a block, not as content.
 
         Every strategy is tried first; when they all come back blocked you get a
-        ``ChallengeError`` describing what matched. scrapesmith deliberately stops
+        ``ChallengeError`` describing what matched. scrapeforge deliberately stops
         here rather than trying to defeat the challenge — the decision (a
         different proxy, your own solver, backing off) is yours.
         """

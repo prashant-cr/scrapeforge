@@ -13,7 +13,7 @@ from typing import Any, TypeVar
 from pydantic import BaseModel
 
 from .config import FetchOptions, ScraperConfig
-from .exceptions import ConfigError, ScrapesmithError
+from .exceptions import ConfigError, ScrapeforgeError
 from .fetchers.chain import FallbackChain
 from .models import ContentType, FetchResponse
 from .parsers.base import BaseParser
@@ -42,7 +42,7 @@ class Scraper:
         await scraper.aclose()
 
     Args:
-        config: A prebuilt :class:`~scrapesmith.config.ScraperConfig`. Mutually
+        config: A prebuilt :class:`~scrapeforge.config.ScraperConfig`. Mutually
             exclusive with ``**overrides``.
         **overrides: Individual ``ScraperConfig`` fields, for the common case
             where you do not want to build the config object yourself.
@@ -57,7 +57,7 @@ class Scraper:
             raise ConfigError("Pass either a ScraperConfig or keyword overrides, not both")
         try:
             self.config = config or ScraperConfig(**overrides)
-        except ScrapesmithError:
+        except ScrapeforgeError:
             raise
         except Exception as exc:  # pydantic ValidationError
             raise ConfigError(f"Invalid configuration: {exc}") from exc
@@ -120,7 +120,7 @@ class Scraper:
             )
         try:
             options = FetchOptions(**kwargs)
-        except ScrapesmithError:
+        except ScrapeforgeError:
             raise
         except Exception as exc:
             raise ConfigError(f"Invalid fetch options: {exc}") from exc
@@ -157,13 +157,13 @@ class Scraper:
 
         Args:
             url: Absolute URL.
-            **options: Any :class:`~scrapesmith.config.FetchOptions` field —
+            **options: Any :class:`~scrapeforge.config.FetchOptions` field —
                 ``method``, ``params``, ``data``, ``json``, ``headers``,
                 ``cookies``, ``proxy``, ``timeout``, ``strategies``, and the
                 browser waiting knobs.
 
         Returns:
-            A :class:`~scrapesmith.models.FetchResponse`. ``strategy_used`` records
+            A :class:`~scrapeforge.models.FetchResponse`. ``strategy_used`` records
             which fetcher produced it.
 
         Raises:
@@ -202,7 +202,7 @@ class Scraper:
             url: Absolute URL.
             schema: The Pydantic model to fill.
             parser: ``"llm"`` (default), ``"css"``, ``"jsonpath"``, or a custom
-                :class:`~scrapesmith.parsers.base.BaseParser`.
+                :class:`~scrapeforge.parsers.base.BaseParser`.
             selectors: Field-to-selector mapping, required for the non-LLM parsers.
             instructions: Extra guidance passed to the LLM parser.
             **options: Forwarded to :meth:`fetch`.
@@ -236,7 +236,7 @@ class Scraper:
         """Extract ``schema`` from content you already have. No network access.
 
         Args:
-            content: Raw text, or a :class:`~scrapesmith.models.FetchResponse`
+            content: Raw text, or a :class:`~scrapeforge.models.FetchResponse`
                 (whose detected content type is used automatically).
             schema: The Pydantic model to fill.
             content_type: Override the content type. Required for raw strings

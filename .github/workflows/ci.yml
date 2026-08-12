@@ -91,7 +91,7 @@ jobs:
           cache-dependency-path: pyproject.toml
 
       # Guards the promise that optional dependencies stay optional: importing
-      # scrapesmith must not require an LLM SDK, Playwright, or tls-client, and a
+      # scrapeforge must not require an LLM SDK, Playwright, or tls-client, and a
       # strategy whose dependency is missing must skip rather than explode.
       - name: Install core + test tooling only
         run: |
@@ -105,8 +105,8 @@ jobs:
           import importlib.util, sys
           for absent in ("playwright", "tls_client", "instructor", "anthropic", "openai"):
               assert importlib.util.find_spec(absent) is None, f"{absent} unexpectedly installed"
-          import scrapesmith
-          s = scrapesmith.Scraper(strategies=["http", "impersonate", "browser"])
+          import scrapeforge
+          s = scrapeforge.Scraper(strategies=["http", "impersonate", "browser"])
           available = s.chain.describe()
           print("strategy availability:", available)
           assert available["http"] and available["impersonate"], "core strategies must work"

@@ -8,8 +8,8 @@ from typing import Any
 import pytest
 from pydantic import BaseModel, Field
 
-from scrapesmith.config import ScraperConfig
-from scrapesmith.parsers.providers import StructuredClient
+from scrapeforge.config import ScraperConfig
+from scrapeforge.parsers.providers import StructuredClient
 
 FIXTURES = Path(__file__).parent / "fixtures"
 

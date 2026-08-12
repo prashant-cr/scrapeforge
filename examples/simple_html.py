@@ -11,7 +11,7 @@ from __future__ import annotations
 import asyncio
 import logging
 
-from scrapesmith import ChallengeError, FetchError, Scraper
+from scrapeforge import ChallengeError, FetchError, Scraper
 
 # Turn on debug logging to watch the chain escalate strategy by strategy.
 logging.basicConfig(level=logging.DEBUG, format="%(levelname)-5s %(name)s: %(message)s")
@@ -35,7 +35,7 @@ async def main() -> None:
         try:
             response = await scraper.fetch(URL)
         except ChallengeError as exc:
-            # scrapesmith detects challenges but never solves them. Decide here:
+            # scrapeforge detects challenges but never solves them. Decide here:
             # a different proxy, your own solver, or back off.
             print(f"Blocked by bot management (matched {exc.signature!r})")
             return

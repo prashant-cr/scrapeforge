@@ -8,11 +8,11 @@ from __future__ import annotations
 
 import pytest
 
-from scrapesmith.config import FetchOptions, ScraperConfig
-from scrapesmith.fetchers.browser import _BROWSER_MANAGED_HEADERS, PlaywrightFetcher
-from scrapesmith.fingerprint.stealth import BROWSER_TYPE_TO_FAMILY, build_init_script
-from scrapesmith.fingerprint.user_agents import USER_AGENTS
-from scrapesmith.models import ContentType
+from scrapeforge.config import FetchOptions, ScraperConfig
+from scrapeforge.fetchers.browser import _BROWSER_MANAGED_HEADERS, PlaywrightFetcher
+from scrapeforge.fingerprint.stealth import BROWSER_TYPE_TO_FAMILY, build_init_script
+from scrapeforge.fingerprint.user_agents import USER_AGENTS
+from scrapeforge.models import ContentType
 
 from .helpers import requires_browser
 
@@ -169,7 +169,7 @@ class TestLiveBrowser:
         """The evasions must survive into the real page context, not just the string."""
         from playwright.async_api import async_playwright
 
-        from scrapesmith.fingerprint.stealth import launch_args
+        from scrapeforge.fingerprint.stealth import launch_args
 
         fetcher = PlaywrightFetcher(make_config())
         profile = fetcher.select_profile(FetchOptions().resolve(fetcher.config))

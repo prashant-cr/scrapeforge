@@ -26,7 +26,7 @@ SchemaT = TypeVar("SchemaT", bound=BaseModel)
 DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434/v1"
 
 
-def _require(package: str, extra: str = "scrapesmith[llm]") -> Any:
+def _require(package: str, extra: str = "scrapeforge[llm]") -> Any:
     """Import an optional provider SDK, or raise a ConfigError with a fix."""
     try:
         return __import__(package)

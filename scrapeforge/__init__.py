@@ -1,9 +1,9 @@
-"""scrapesmith — schema-driven scraping with layered evasion and LLM extraction.
+"""scrapeforge — schema-driven scraping with layered evasion and LLM extraction.
 
 Quick start::
 
     from pydantic import BaseModel
-    from scrapesmith import Scraper
+    from scrapeforge import Scraper
 
     class Product(BaseModel):
         name: str
@@ -27,7 +27,7 @@ from .exceptions import (
     FetchError,
     ParseError,
     ProxyError,
-    ScrapesmithError,
+    ScrapeforgeError,
 )
 from .fetchers.base import BaseFetcher
 from .fetchers.chain import FallbackChain, register_fetcher
@@ -49,9 +49,9 @@ __all__ = [
     "FetchResponse",
     "ParseError",
     "ProxyError",
+    "ScrapeforgeError",
     "Scraper",
     "ScraperConfig",
-    "ScrapesmithError",
     "__version__",
     "register_fetcher",
 ]

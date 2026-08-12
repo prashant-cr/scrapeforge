@@ -1,6 +1,6 @@
 """Pydantic configuration models.
 
-Two objects define everything scrapesmith does:
+Two objects define everything scrapeforge does:
 
 * :class:`ScraperConfig` — client-wide defaults, passed once to ``Scraper(...)``.
 * :class:`FetchOptions` — per-request overrides. Merge order is
@@ -23,7 +23,7 @@ __all__ = ["KNOWN_STRATEGIES", "FetchOptions", "LLMProvider", "ScraperConfig"]
 LLMProvider = Literal["openai", "anthropic", "ollama", "openai_compatible"]
 
 #: Strategy names the built-in registry knows about. Custom fetchers registered
-#: via :func:`scrapesmith.fetchers.chain.register_fetcher` extend this at runtime.
+#: via :func:`scrapeforge.fetchers.chain.register_fetcher` extend this at runtime.
 KNOWN_STRATEGIES: tuple[str, ...] = ("http", "impersonate", "tls", "browser")
 
 #: Environment variables consulted for each provider's API key.

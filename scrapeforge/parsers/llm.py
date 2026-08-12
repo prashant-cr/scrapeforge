@@ -38,13 +38,13 @@ class LLMParser(BaseParser):
     The user's model *is* the contract: it is sent as a JSON schema, the response
     is constrained to it, and validation happens before the value is returned.
     On a validation failure the underlying client performs a bounded re-ask with
-    the error fed back; if that still fails, :class:`~scrapesmith.exceptions.ParseError`
+    the error fed back; if that still fails, :class:`~scrapeforge.exceptions.ParseError`
     is raised rather than a half-filled object.
 
     Args:
         config: Client configuration providing the provider and model.
         client: Pre-built client, mainly for tests. Built lazily from ``config``
-            when omitted, so importing scrapesmith never requires an LLM SDK.
+            when omitted, so importing scrapeforge never requires an LLM SDK.
     """
 
     name = "llm"

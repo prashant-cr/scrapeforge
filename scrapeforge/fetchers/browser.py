@@ -58,7 +58,7 @@ class PlaywrightFetcher(BaseFetcher):
 
     name = "browser"
     requires = "playwright"
-    extra_name = "scrapesmith[browser]"
+    extra_name = "scrapeforge[browser]"
 
     def __init__(self, config) -> None:
         super().__init__(config)
@@ -79,7 +79,7 @@ class PlaywrightFetcher(BaseFetcher):
             except ImportError as exc:
                 raise ConfigError(
                     "The 'browser' strategy requires Playwright. "
-                    "Install scrapesmith[browser] and run 'playwright install chromium'."
+                    "Install scrapeforge[browser] and run 'playwright install chromium'."
                 ) from exc
 
             self._playwright = await async_playwright().start()

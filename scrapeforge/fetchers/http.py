@@ -20,7 +20,7 @@ class HttpxFetcher(BaseFetcher):
 
     Fast and cheap, and sufficient for open APIs and pages without a bot wall.
     It does not impersonate a browser's TLS fingerprint — that is the next rung
-    (:class:`~scrapesmith.fetchers.impersonate.CurlCffiFetcher`).
+    (:class:`~scrapeforge.fetchers.impersonate.CurlCffiFetcher`).
     """
 
     name = "http"

@@ -20,10 +20,10 @@ from typing import Any
 
 import pytest
 
-from scrapesmith.config import FetchOptions, ScraperConfig
-from scrapesmith.exceptions import ConfigError, FetchError, ProxyError
-from scrapesmith.fetchers.tls import TlsClientFetcher
-from scrapesmith.models import ContentType
+from scrapeforge.config import FetchOptions, ScraperConfig
+from scrapeforge.exceptions import ConfigError, FetchError, ProxyError
+from scrapeforge.fetchers.tls import TlsClientFetcher
+from scrapeforge.models import ContentType
 
 URL = "https://example.com/page"
 
@@ -142,17 +142,17 @@ class TestAvailability:
 
     def test_declares_its_dependency_and_install_hint(self, fetcher):
         assert fetcher.requires == "tls_client"
-        assert fetcher.extra_name == "scrapesmith[tls]"
+        assert fetcher.extra_name == "scrapeforge[tls]"
 
     async def test_missing_dependency_raises_config_error_with_a_fix(
         self, fetcher, config, monkeypatch
     ):
-        monkeypatch.setattr("scrapesmith.fetchers.base.module_available", lambda name: False)
+        monkeypatch.setattr("scrapeforge.fetchers.base.module_available", lambda name: False)
 
         with pytest.raises(ConfigError) as exc_info:
             await fetcher.fetch(URL, make_options(config))
 
-        assert "scrapesmith[tls]" in str(exc_info.value)
+        assert "scrapeforge[tls]" in str(exc_info.value)
 
 
 class TestSessionConstruction:
@@ -209,13 +209,13 @@ class TestRequestWiring:
         assert FakeSession.last.request_kwargs["headers"]["user-agent"] == "my-crawler/2.0"
 
     async def test_config_and_per_request_headers_are_merged(self, config, fake_tls):
-        scoped = config.model_copy(update={"headers": {"X-Client": "scrapesmith", "X-Env": "prod"}})
+        scoped = config.model_copy(update={"headers": {"X-Client": "scrapeforge", "X-Env": "prod"}})
         options = FetchOptions(headers={"X-Env": "staging"}).resolve(scoped)
 
         await TlsClientFetcher(scoped).fetch(URL, options)
 
         headers = FakeSession.last.request_kwargs["headers"]
-        assert headers["X-Client"] == "scrapesmith"
+        assert headers["X-Client"] == "scrapeforge"
         assert headers["X-Env"] == "staging"
 
     async def test_post_json_body(self, fetcher, config, fake_tls):

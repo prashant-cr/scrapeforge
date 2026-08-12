@@ -6,11 +6,11 @@ import random
 
 import pytest
 
-from scrapesmith.fingerprint import build_headers, profile_for_user_agent, random_profile
-from scrapesmith.fingerprint.headers import SUPPORTED_ENCODINGS
-from scrapesmith.fingerprint.stealth import build_init_script, launch_args
-from scrapesmith.fingerprint.user_agents import USER_AGENTS
-from scrapesmith.models import ContentType
+from scrapeforge.fingerprint import build_headers, profile_for_user_agent, random_profile
+from scrapeforge.fingerprint.headers import SUPPORTED_ENCODINGS
+from scrapeforge.fingerprint.stealth import build_init_script, launch_args
+from scrapeforge.fingerprint.user_agents import USER_AGENTS
+from scrapeforge.models import ContentType
 
 
 class TestUserAgentPool:

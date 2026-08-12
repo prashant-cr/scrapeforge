@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "scrapesmith"
+name = "scrapeforge"
 version = "0.1.0"
 description = "Schema-driven web scraping with layered anti-bot evasion and LLM-based extraction."
 readme = "README.md"
@@ -69,13 +69,13 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/prashant-cr/scrapesmith"
-Source = "https://github.com/prashant-cr/scrapesmith"
-Issues = "https://github.com/prashant-cr/scrapesmith/issues"
-Changelog = "https://github.com/prashant-cr/scrapesmith/releases"
+Homepage = "https://github.com/prashant-cr/scrapeforge"
+Source = "https://github.com/prashant-cr/scrapeforge"
+Issues = "https://github.com/prashant-cr/scrapeforge/issues"
+Changelog = "https://github.com/prashant-cr/scrapeforge/releases"
 
 [tool.hatch.build.targets.wheel]
-packages = ["scrapesmith"]
+packages = ["scrapeforge"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
@@ -84,7 +84,7 @@ addopts = "--strict-markers"
 markers = [
     "network: reaches a third-party host. Deselect with -m 'not network' for a hermetic run.",
 ]
-filterwarnings = ["error::DeprecationWarning:scrapesmith.*"]
+filterwarnings = ["error::DeprecationWarning:scrapeforge.*"]
 
 [tool.ruff]
 line-length = 100
@@ -100,4 +100,4 @@ ignore = ["B008"]
 "tests/*" = ["E501"]
 # User-agent strings are single tokens; wrapping them hurts readability more than
 # it helps, and a mangled UA is a real bug.
-"scrapesmith/fingerprint/user_agents.py" = ["E501"]
+"scrapeforge/fingerprint/user_agents.py" = ["E501"]

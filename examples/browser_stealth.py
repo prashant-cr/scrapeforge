@@ -2,7 +2,7 @@
 
 Requires the browser extra:
 
-    pip install "scrapesmith[browser]"
+    pip install "scrapeforge[browser]"
     playwright install chromium
     python examples/browser_stealth.py
 """
@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import asyncio
 
-from scrapesmith import ChallengeError, ConfigError, FetchError, Scraper
+from scrapeforge import ChallengeError, ConfigError, FetchError, Scraper
 
 URL = "https://example.com/"
 
@@ -28,7 +28,7 @@ async def main() -> None:
         timeout=45,
     ) as scraper:
         if not scraper.chain.get_fetcher("browser").is_available():
-            print("Playwright is not installed. Run: pip install 'scrapesmith[browser]'")
+            print("Playwright is not installed. Run: pip install 'scrapeforge[browser]'")
             return
 
         try:
@@ -43,7 +43,7 @@ async def main() -> None:
                 wait_time=0.5,
             )
         except ChallengeError as exc:
-            # The browser is the last rung. If it is also challenged, scrapesmith
+            # The browser is the last rung. If it is also challenged, scrapeforge
             # stops and hands the decision back to you rather than trying to
             # defeat the challenge.
             print(f"Still challenged at the browser rung (matched {exc.signature!r})")

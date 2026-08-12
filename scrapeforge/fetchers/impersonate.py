@@ -30,7 +30,7 @@ class CurlCffiFetcher(BaseFetcher):
 
     name = "impersonate"
     requires = "curl_cffi"
-    extra_name = "scrapesmith (core dependency)"
+    extra_name = "scrapeforge (core dependency)"
 
     def _impersonate_target(self, options: FetchOptions) -> str:
         if self.config.rotate_user_agent:
@@ -42,7 +42,7 @@ class CurlCffiFetcher(BaseFetcher):
             from curl_cffi import requests as curl_requests
         except ImportError as exc:  # pragma: no cover - core dep, guarded anyway
             raise FetchError(
-                "curl_cffi is not installed; install scrapesmith's core dependencies",
+                "curl_cffi is not installed; install scrapeforge's core dependencies",
                 url=url,
                 strategy_used=self.name,
             ) from exc

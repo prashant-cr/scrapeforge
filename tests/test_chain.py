@@ -8,17 +8,17 @@ from __future__ import annotations
 
 import pytest
 
-from scrapesmith.config import FetchOptions, ScraperConfig
-from scrapesmith.exceptions import (
+from scrapeforge.config import FetchOptions, ScraperConfig
+from scrapeforge.exceptions import (
     AllStrategiesFailed,
     ChallengeError,
     ConfigError,
     FetchError,
     ProxyError,
 )
-from scrapesmith.fetchers.base import BaseFetcher
-from scrapesmith.fetchers.chain import FETCHER_REGISTRY, FallbackChain, register_fetcher
-from scrapesmith.models import ContentType, FetchResponse
+from scrapeforge.fetchers.base import BaseFetcher
+from scrapeforge.fetchers.chain import FETCHER_REGISTRY, FallbackChain, register_fetcher
+from scrapeforge.models import ContentType, FetchResponse
 
 URL = "https://example.com/page"
 
@@ -169,13 +169,13 @@ class TestAvailability:
     async def test_all_unavailable_reports_install_hints(self, options):
         cfg = make_config(["a"])
         a = RecordingFetcher(cfg, available=False)
-        a.extra_name = "scrapesmith[browser]"
+        a.extra_name = "scrapeforge[browser]"
         chain = build_chain(cfg, {"a": a})
 
         with pytest.raises(AllStrategiesFailed) as exc_info:
             await chain.fetch(URL, options.model_copy(update={"strategies": ["a"]}))
 
-        assert "scrapesmith[browser]" in str(exc_info.value)
+        assert "scrapeforge[browser]" in str(exc_info.value)
         assert "a" in exc_info.value.attempts
 
 

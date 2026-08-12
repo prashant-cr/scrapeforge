@@ -1,12 +1,12 @@
-"""Exception hierarchy for scrapesmith.
+"""Exception hierarchy for scrapeforge.
 
-All errors raised by the public API derive from :class:`ScrapesmithError`, so callers
+All errors raised by the public API derive from :class:`ScrapeforgeError`, so callers
 never have to catch library-internal exceptions (``httpx.ConnectError``,
 ``playwright.Error``, provider SDK errors, ...).
 
 ::
 
-    ScrapesmithError
+    ScrapeforgeError
     ├── FetchError
     │   ├── AllStrategiesFailed
     │   ├── ChallengeError
@@ -26,7 +26,7 @@ __all__ = [
     "FetchError",
     "ParseError",
     "ProxyError",
-    "ScrapesmithError",
+    "ScrapeforgeError",
 ]
 
 _SNIPPET_LIMIT = 500
@@ -44,11 +44,11 @@ def _snippet(body: str | bytes | None) -> str | None:
     return body
 
 
-class ScrapesmithError(Exception):
-    """Base class for every error raised by scrapesmith."""
+class ScrapeforgeError(Exception):
+    """Base class for every error raised by scrapeforge."""
 
 
-class FetchError(ScrapesmithError):
+class FetchError(ScrapeforgeError):
     """A fetch attempt failed.
 
     Attributes:
@@ -107,7 +107,7 @@ class AllStrategiesFailed(FetchError):
 class ChallengeError(FetchError):
     """The response looks like a bot-management interstitial or block page.
 
-    scrapesmith deliberately does not attempt to solve challenges. Catch this and
+    scrapeforge deliberately does not attempt to solve challenges. Catch this and
     plug in your own solver, a residential proxy, or back off.
 
     Attributes:
@@ -125,7 +125,7 @@ class ProxyError(FetchError):
     """The configured proxy could not be used (unreachable, refused, bad auth)."""
 
 
-class ParseError(ScrapesmithError):
+class ParseError(ScrapeforgeError):
     """Extraction failed or the LLM output did not validate against the schema.
 
     Attributes:
@@ -147,5 +147,5 @@ class ParseError(ScrapesmithError):
         super().__init__(message)
 
 
-class ConfigError(ScrapesmithError):
+class ConfigError(ScrapeforgeError):
     """Invalid configuration: unknown strategy, missing API key, missing extra."""
