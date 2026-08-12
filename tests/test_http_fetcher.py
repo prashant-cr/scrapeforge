@@ -6,10 +6,10 @@ import httpx
 import pytest
 import respx
 
-from scrapekit.config import FetchOptions, ScraperConfig
-from scrapekit.exceptions import FetchError, ProxyError
-from scrapekit.fetchers.http import HttpxFetcher
-from scrapekit.models import ContentType
+from scrapesmith.config import FetchOptions, ScraperConfig
+from scrapesmith.exceptions import FetchError, ProxyError
+from scrapesmith.fetchers.http import HttpxFetcher
+from scrapesmith.models import ContentType
 
 URL = "https://example.com/page"
 
@@ -79,14 +79,14 @@ async def test_pinned_user_agent_is_respected(fetcher, config):
 @respx.mock
 async def test_config_and_per_request_headers_are_merged(config):
     route = respx.get(URL).mock(return_value=httpx.Response(200, text="ok"))
-    scoped = config.model_copy(update={"headers": {"X-Client": "scrapekit", "X-Env": "prod"}})
+    scoped = config.model_copy(update={"headers": {"X-Client": "scrapesmith", "X-Env": "prod"}})
     fetcher = HttpxFetcher(scoped)
 
     options = FetchOptions(headers={"X-Env": "staging"}).resolve(scoped)
     await fetcher.fetch(URL, options)
 
     sent = route.calls[0].request.headers
-    assert sent["x-client"] == "scrapekit"  # kept from config
+    assert sent["x-client"] == "scrapesmith"  # kept from config
     assert sent["x-env"] == "staging"  # per-request wins
 
 

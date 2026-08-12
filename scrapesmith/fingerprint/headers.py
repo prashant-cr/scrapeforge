@@ -3,7 +3,7 @@
 Bot managers score header *coherence*, not just presence: a Chrome ``User-Agent``
 alongside Firefox-only headers, or a ``Sec-CH-UA`` brand list that disagrees with
 the UA version, is a stronger signal than a missing header. So headers are always
-derived from a :class:`~scrapekit.fingerprint.user_agents.UserAgentProfile`,
+derived from a :class:`~scrapesmith.fingerprint.user_agents.UserAgentProfile`,
 never assembled ad hoc.
 
 Header *order* also differs between browsers and is preserved here — dicts keep

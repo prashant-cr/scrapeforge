@@ -3,8 +3,8 @@
 Scope note: these evasions normalize *automation give-aways* — properties that
 differ between a headless automation build and the same browser driven by a
 person. They do not solve CAPTCHAs, do not compute proof-of-work, and do not
-target any specific vendor. When a challenge is detected, scrapekit raises
-:class:`~scrapekit.exceptions.ChallengeError` and lets the caller decide.
+target any specific vendor. When a challenge is detected, scrapesmith raises
+:class:`~scrapesmith.exceptions.ChallengeError` and lets the caller decide.
 """
 
 from __future__ import annotations

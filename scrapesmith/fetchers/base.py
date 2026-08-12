@@ -56,14 +56,14 @@ class BaseFetcher(ABC):
         Args:
             url: Absolute URL to fetch.
             options: Fully-resolved per-request options (see
-                :meth:`~scrapekit.config.FetchOptions.resolve`).
+                :meth:`~scrapesmith.config.FetchOptions.resolve`).
 
         Returns:
-            A :class:`~scrapekit.models.FetchResponse`.
+            A :class:`~scrapesmith.models.FetchResponse`.
 
         Raises:
             FetchError: On any transport-level failure. Subclasses translate
-                library-specific exceptions into the scrapekit hierarchy.
+                library-specific exceptions into the scrapesmith hierarchy.
         """
 
     def is_available(self) -> bool:
@@ -104,7 +104,7 @@ class BaseFetcher(ABC):
         started: float,
         encoding: str = "utf-8",
     ) -> FetchResponse:
-        """Assemble a :class:`~scrapekit.models.FetchResponse` from raw parts."""
+        """Assemble a :class:`~scrapesmith.models.FetchResponse` from raw parts."""
         normalized = {str(k).lower(): str(v) for k, v in headers.items()}
         content_type = detect_content_type(normalized.get("content-type"), content)
         return FetchResponse(

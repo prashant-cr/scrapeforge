@@ -4,7 +4,7 @@ Runs offline against a bundled fixture so it works without network access. Set
 ANTHROPIC_API_KEY (or pass llm_api_key) to run the LLM path; without a key the
 example falls back to the deterministic CSS path, which needs no API at all.
 
-    pip install "scrapekit[llm]"
+    pip install "scrapesmith[llm]"
     export ANTHROPIC_API_KEY=...
     python examples/schema_extraction.py
 """
@@ -17,7 +17,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, Field
 
-from scrapekit import ContentType, ParseError, Scraper
+from scrapesmith import ContentType, ParseError, Scraper
 
 FIXTURE = Path(__file__).parent.parent / "tests" / "fixtures" / "product.html"
 

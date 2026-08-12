@@ -1,6 +1,6 @@
 """Alternate TLS impersonation via ``tls-client``.
 
-Secondary to :class:`~scrapekit.fetchers.impersonate.CurlCffiFetcher`; useful
+Secondary to :class:`~scrapesmith.fetchers.impersonate.CurlCffiFetcher`; useful
 when a specific client profile is needed that curl_cffi does not ship. Disabled
 by default — add ``"tls"`` to ``strategies`` to enable it.
 
@@ -33,7 +33,7 @@ class TlsClientFetcher(BaseFetcher):
 
     name = "tls"
     requires = "tls_client"
-    extra_name = "scrapekit[tls]"
+    extra_name = "scrapesmith[tls]"
 
     def _request_sync(self, url: str, options: FetchOptions, headers: dict[str, str]):
         import tls_client
@@ -76,7 +76,7 @@ class TlsClientFetcher(BaseFetcher):
     async def fetch(self, url: str, options: FetchOptions) -> FetchResponse:
         if not self.is_available():
             raise ConfigError(
-                "The 'tls' strategy requires the tls-client package. Install scrapekit[tls]."
+                "The 'tls' strategy requires the tls-client package. Install scrapesmith[tls]."
             )
 
         profile = self.select_profile(options)

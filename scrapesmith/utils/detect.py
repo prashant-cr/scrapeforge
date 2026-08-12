@@ -4,7 +4,7 @@ Everything here is data-driven: the signature lists below are the *only* place
 where bot-management vendors are named, and they are matched generically. No
 per-site special cases, and no attempt to solve a challenge — detection exists
 so the fallback chain can escalate and, if all else fails, raise
-:class:`~scrapekit.exceptions.ChallengeError`.
+:class:`~scrapesmith.exceptions.ChallengeError`.
 """
 
 from __future__ import annotations
@@ -86,7 +86,7 @@ def detect_content_type(header_value: str | None, body: bytes | None = None) -> 
         body: Response body used for sniffing when the header is unhelpful.
 
     Returns:
-        The resolved :class:`~scrapekit.models.ContentType`.
+        The resolved :class:`~scrapesmith.models.ContentType`.
     """
     mime = (header_value or "").split(";", 1)[0].strip().lower()
 
@@ -115,7 +115,7 @@ def detect_content_type(header_value: str | None, body: bytes | None = None) -> 
 def sniff_body(body: bytes | None) -> ContentType:
     """Guess the content type from the body alone.
 
-    Returns :attr:`~scrapekit.models.ContentType.UNKNOWN` when nothing matches.
+    Returns :attr:`~scrapesmith.models.ContentType.UNKNOWN` when nothing matches.
     """
     if not body:
         return ContentType.UNKNOWN

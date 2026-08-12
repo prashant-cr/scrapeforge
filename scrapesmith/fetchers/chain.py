@@ -56,7 +56,7 @@ def register_fetcher(fetcher_cls: type[BaseFetcher]) -> type[BaseFetcher]:
             async def fetch(self, url, options): ...
 
     Args:
-        fetcher_cls: A :class:`~scrapekit.fetchers.base.BaseFetcher` subclass
+        fetcher_cls: A :class:`~scrapesmith.fetchers.base.BaseFetcher` subclass
             with a unique ``name``.
 
     Returns:
@@ -171,10 +171,10 @@ class FallbackChain:
         Args:
             url: Absolute URL.
             options: Fully-resolved options (see
-                :meth:`~scrapekit.config.FetchOptions.resolve`).
+                :meth:`~scrapesmith.config.FetchOptions.resolve`).
 
         Returns:
-            The first usable :class:`~scrapekit.models.FetchResponse`.
+            The first usable :class:`~scrapesmith.models.FetchResponse`.
 
         Raises:
             AllStrategiesFailed: When every enabled strategy failed or was

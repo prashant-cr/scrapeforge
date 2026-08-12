@@ -8,10 +8,10 @@ import httpx
 import pytest
 import respx
 
-from scrapekit import Scraper
-from scrapekit.config import FetchOptions, ScraperConfig
-from scrapekit.exceptions import ConfigError
-from scrapekit.models import ContentType
+from scrapesmith import Scraper
+from scrapesmith.config import FetchOptions, ScraperConfig
+from scrapesmith.exceptions import ConfigError
+from scrapesmith.models import ContentType
 
 URL = "https://example.com/page"
 

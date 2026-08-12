@@ -1,14 +1,14 @@
 # CLAUDE.md
 
-> Guidance for Claude Code when building and maintaining **scrapekit** — an open-source, schema-driven web scraping library with layered anti-bot evasion and LLM-based extraction.
+> Guidance for Claude Code when building and maintaining **scrapesmith** — an open-source, schema-driven web scraping library with layered anti-bot evasion and LLM-based extraction.
 >
-> Rename `scrapekit` to whatever the project owner prefers; it is used throughout as a placeholder.
+> Rename `scrapesmith` to whatever the project owner prefers; it is used throughout as a placeholder.
 
 ---
 
 ## 1. What we are building
 
-`scrapekit` is a Python library that:
+`scrapesmith` is a Python library that:
 
 1. Takes a URL and returns whatever the server serves — HTML, JSON, or XML — for both `GET` and `POST` requests.
 2. Accepts a **Pydantic schema** describing the fields to extract, and uses an LLM to parse the fetched content into a validated instance of that schema.
@@ -51,10 +51,10 @@ The library is a general-purpose tool. Design it to encourage responsible use (s
 Keep `playwright` and the LLM providers as **optional extras** so a minimal install stays light:
 
 ```
-pip install scrapekit                # core: httpx + curl_cffi + pydantic
-pip install "scrapekit[browser]"     # + playwright
-pip install "scrapekit[llm]"         # + instructor/litellm
-pip install "scrapekit[all]"
+pip install scrapesmith                # core: httpx + curl_cffi + pydantic
+pip install "scrapesmith[browser]"     # + playwright
+pip install "scrapesmith[llm]"         # + instructor/litellm
+pip install "scrapesmith[all]"
 ```
 
 ---
@@ -62,8 +62,8 @@ pip install "scrapekit[all]"
 ## 4. Repository layout
 
 ```
-scrapekit/
-├── scrapekit/
+scrapesmith/
+├── scrapesmith/
 │   ├── __init__.py            # exports Scraper, ScraperConfig, exceptions
 │   ├── client.py             # Scraper: the public entrypoint
 │   ├── config.py             # ScraperConfig, FetchOptions (pydantic)
@@ -104,7 +104,7 @@ scrapekit/
 
 ```python
 from pydantic import BaseModel
-from scrapekit import Scraper
+from scrapesmith import Scraper
 
 class Product(BaseModel):
     name: str
@@ -253,7 +253,7 @@ Allow a `parser="css"`/`parser="jsonpath"` mode where the schema fields map to C
 ## 10. Exceptions (`exceptions.py`)
 
 ```
-ScrapekitError                 # base
+ScrapesmithError                 # base
 ├── FetchError                 # all fetchers failed
 │   ├── AllStrategiesFailed
 │   ├── ChallengeError         # blocked by bot management / challenge page
@@ -294,7 +294,7 @@ Treat these as first-class requirements, not afterthoughts.
 - Async-first; sync wrappers delegate, no duplicated logic.
 - Small, focused modules matching §4. Don't collapse fetchers into one file.
 - Google-style docstrings on public classes/methods; keep the README examples runnable.
-- Optional dependencies stay optional — guard imports and fail with a clear `ConfigError` ("install scrapekit[browser]") rather than an `ImportError` at import time.
+- Optional dependencies stay optional — guard imports and fail with a clear `ConfigError` ("install scrapesmith[browser]") rather than an `ImportError` at import time.
 - Every new fetcher implements `BaseFetcher` and registers with the chain by name.
 - No secrets in logs. No per-site hardcoding. Keep evasion generic and configurable.
 - Add an example under `examples/` for any new user-facing capability.

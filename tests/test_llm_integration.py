@@ -16,11 +16,11 @@ import httpx
 import pytest
 import respx
 
-from scrapekit.config import ScraperConfig
-from scrapekit.exceptions import ParseError
-from scrapekit.parsers.llm import LLMParser
+from scrapesmith.config import ScraperConfig
+from scrapesmith.exceptions import ParseError
+from scrapesmith.parsers.llm import LLMParser
 
-instructor = pytest.importorskip("instructor", reason="requires scrapekit[llm]")
+instructor = pytest.importorskip("instructor", reason="requires scrapesmith[llm]")
 
 ANTHROPIC_URL = "https://api.anthropic.com/v1/messages"
 OPENAI_URL = "https://api.openai.com/v1/chat/completions"

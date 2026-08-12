@@ -1,11 +1,11 @@
-# scrapekit
+# scrapesmith
 
 Schema-driven web scraping for Python. Give it a URL and a Pydantic model; it fetches through a
 fallback chain of increasingly capable strategies and returns a validated instance of your model.
 
 ```python
 from pydantic import BaseModel
-from scrapekit import Scraper
+from scrapesmith import Scraper
 
 
 class Product(BaseModel):
@@ -33,11 +33,11 @@ product = await scraper.scrape("https://shop.example/p/1", schema=Product)
 ## Install
 
 ```bash
-pip install scrapekit                # core: httpx + curl_cffi + pydantic + selectolax
-pip install "scrapekit[browser]"     # + playwright
-pip install "scrapekit[llm]"         # + instructor / anthropic / openai
-pip install "scrapekit[tls]"         # + tls-client
-pip install "scrapekit[all]"
+pip install scrapesmith                # core: httpx + curl_cffi + pydantic + selectolax
+pip install "scrapesmith[browser]"     # + playwright
+pip install "scrapesmith[llm]"         # + instructor / anthropic / openai
+pip install "scrapesmith[tls]"         # + tls-client
+pip install "scrapesmith[all]"
 ```
 
 The browser strategy also needs its runtime downloaded once:
@@ -156,7 +156,7 @@ await scraper.fetch(url, headers={"X-Trace": "1"}, timeout=60, strategies=["brow
 
 It moves to the next strategy when a response looks **blocked or challenged**, not only on hard
 errors. Detection is generic and data-driven — the signature list lives in
-`scrapekit/utils/detect.py` and matches interstitial markers, WAF status codes paired with tiny or
+`scrapesmith/utils/detect.py` and matches interstitial markers, WAF status codes paired with tiny or
 HTML bodies, and content-type mismatches (you asked for JSON, you got an HTML block page).
 
 **Retries vs. escalation are different things.** Transient network errors are retried on the same
@@ -195,7 +195,7 @@ so `response.json()` works no matter which rung answered.
 ### Custom strategies
 
 ```python
-from scrapekit import BaseFetcher, register_fetcher
+from scrapesmith import BaseFetcher, register_fetcher
 
 
 @register_fetcher
@@ -262,7 +262,7 @@ Same schema, same call shape — only the parser changes.
 ## Errors
 
 ```
-ScrapekitError
+ScrapesmithError
 ├── FetchError                 # all fetchers failed
 │   ├── AllStrategiesFailed    # .attempts maps strategy -> reason
 │   ├── ChallengeError         # blocked by bot management; .signature says what matched
@@ -280,7 +280,7 @@ are held as `SecretStr` and proxy URLs are redacted before they reach a log line
 ## Responsible use
 
 **You are responsible for complying with each site's Terms of Service, applicable law, and
-data-protection rules (including GDPR/CCPA where they apply).** Do not use scrapekit to access data
+data-protection rules (including GDPR/CCPA where they apply).** Do not use scrapesmith to access data
 you are not authorized to access, to overload servers, or to evade authentication.
 
 Good behaviour is the default, and the defaults are deliberately conservative:
@@ -292,7 +292,7 @@ Good behaviour is the default, and the defaults are deliberately conservative:
   throttled to the speed of one.
 - **No CAPTCHA solving, no challenge bypass.** Challenges are detected and surfaced as
   `ChallengeError` so *you* decide what to do — plug in a solver, change proxy, or back off.
-  scrapekit will not do it for you.
+  scrapesmith will not do it for you.
 - **No credential or paywall bypass.** Fingerprint and TLS handling exist for reliability against
   generic bot walls on otherwise-public content. They are not a tool for breaking into gated
   systems.
@@ -362,6 +362,40 @@ The browser job is `continue-on-error`. A red result there is as often an upstre
 browser-download hiccup as a defect here, so it reports without gating; the hermetic jobs are the
 real signal. Provider API keys are blanked at the workflow level so a runner-level credential can
 never turn a mocked test into a billed one.
+
+### Releasing
+
+Publishing runs through `.github/workflows/release.yml` using PyPI
+[Trusted Publishing](https://docs.pypi.org/trusted-publishers/) — GitHub Actions authenticates over
+OIDC, so no API token exists in the repo, in CI, or on anyone's laptop.
+
+One-time setup on PyPI and TestPyPI (Your projects → Publishing → Add a pending publisher):
+
+| Field | Value |
+|---|---|
+| PyPI project name | `scrapesmith` |
+| Owner | `prashant-cr` |
+| Repository | `scrapekit` |
+| Workflow | `release.yml` |
+| Environment | `pypi` (or `testpypi` on test.pypi.org) |
+
+Then:
+
+```bash
+# 1. Rehearse. Actions → Release → Run workflow → target: testpypi
+#    Install it somewhere clean and confirm it actually works:
+pip install -i https://test.pypi.org/simple/ \
+            --extra-index-url https://pypi.org/simple/ scrapesmith
+
+# 2. Ship. The tag must match the version in pyproject.toml — the workflow
+#    refuses to publish if they disagree.
+git tag v0.1.0 && git push origin v0.1.0
+```
+
+The build runs once and both targets publish the *same* artifacts, so the rehearsal is byte-for-byte
+what lands on PyPI. A PyPI version number can be yanked but never reused, so the workflow validates
+metadata with `twine check --strict` and installs the built wheel to confirm it imports before
+anything is uploaded.
 
 ## License
 

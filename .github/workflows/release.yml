@@ -1,0 +1,121 @@
+name: Release
+
+# Two ways in:
+#   * push a tag (v0.1.0)      -> build, then publish to PyPI
+#   * run manually             -> build, then publish to TestPyPI (the rehearsal)
+#
+# Both paths build the artifacts exactly once and hand the *same* files to the
+# upload step, so what you rehearse on TestPyPI is byte-for-byte what lands on
+# PyPI. Rebuilding between the two would defeat the point of rehearsing.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Where to publish
+        required: true
+        default: testpypi
+        type: choice
+        options: [testpypi, pypi]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build distributions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build sdist and wheel
+        run: |
+          python -m pip install --upgrade pip build twine
+          python -m build
+
+      # --strict fails on anything PyPI would reject, including a README that
+      # will not render. Better to find that here than after an unreusable
+      # version number has been consumed.
+      - name: Validate metadata
+        run: twine check --strict dist/*
+
+      # A tag must agree with the version in pyproject.toml, or you publish
+      # something other than what the tag claims.
+      - name: Verify the tag matches the package version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          python - <<'PY'
+          import os, pathlib, re, sys, tomllib
+          version = tomllib.loads(pathlib.Path("pyproject.toml").read_text())["project"]["version"]
+          tag = os.environ["GITHUB_REF_NAME"].lstrip("v")
+          if tag != version:
+              sys.exit(f"tag v{tag} does not match pyproject version {version}")
+          print(f"tag and version agree: {version}")
+          PY
+
+      - name: Confirm the wheel imports and is typed
+        run: |
+          python -m venv /tmp/check
+          /tmp/check/bin/pip install --quiet dist/*.whl
+          # Run from / so the source tree cannot shadow the installed package.
+          cd / && /tmp/check/bin/python -c "
+          import pathlib, scrapesmith
+          loc = pathlib.Path(scrapesmith.__file__).parent
+          assert 'site-packages' in str(loc), f'imported from source: {loc}'
+          assert (loc / 'py.typed').exists(), 'py.typed marker missing from the wheel'
+          print('wheel ok:', scrapesmith.__version__, loc)
+          "
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  testpypi:
+    name: publish to TestPyPI
+    needs: build
+    # The rehearsal: manual runs default here. Tag pushes skip straight to PyPI,
+    # since by then the rehearsal has already happened.
+    if: github.event_name == 'workflow_dispatch' && inputs.target == 'testpypi'
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/scrapesmith
+    permissions:
+      id-token: write # OIDC for Trusted Publishing. No token is stored anywhere.
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  pypi:
+    name: publish to PyPI
+    needs: build
+    if: >-
+      startsWith(github.ref, 'refs/tags/v') ||
+      (github.event_name == 'workflow_dispatch' && inputs.target == 'pypi')
+    runs-on: ubuntu-latest
+    environment:
+      # Point a GitHub environment protection rule at this name if you want a
+      # manual approval gate before anything reaches PyPI permanently.
+      name: pypi
+      url: https://pypi.org/p/scrapesmith
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - uses: pypa/gh-action-pypi-publish@release/v1

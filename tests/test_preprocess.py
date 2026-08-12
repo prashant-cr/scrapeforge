@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import json
 
-from scrapekit.models import ContentType
-from scrapekit.parsers.preprocess import html_to_text, preprocess, trim_json, trim_xml
+from scrapesmith.models import ContentType
+from scrapesmith.parsers.preprocess import html_to_text, preprocess, trim_json, trim_xml
 
 
 class TestHtmlToText:

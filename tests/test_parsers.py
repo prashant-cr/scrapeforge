@@ -5,10 +5,10 @@ from __future__ import annotations
 import pytest
 from pydantic import BaseModel, ValidationError
 
-from scrapekit.exceptions import ConfigError, ParseError
-from scrapekit.models import ContentType
-from scrapekit.parsers.llm import LLMParser
-from scrapekit.parsers.selector import SelectorParser
+from scrapesmith.exceptions import ConfigError, ParseError
+from scrapesmith.models import ContentType
+from scrapesmith.parsers.llm import LLMParser
+from scrapesmith.parsers.selector import SelectorParser
 
 
 class TestLLMParser:
@@ -134,7 +134,7 @@ class TestLLMParser:
         assert client.calls == []
 
     async def test_client_is_built_lazily(self, config, product_schema):
-        """Importing scrapekit must never require an LLM SDK."""
+        """Importing scrapesmith must never require an LLM SDK."""
         parser = LLMParser(config)
         assert parser._client is None
 

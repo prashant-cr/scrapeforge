@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from scrapekit.models import ContentType
-from scrapekit.utils.detect import (
+from scrapesmith.models import ContentType
+from scrapesmith.utils.detect import (
     classify_response,
     detect_content_type,
     looks_like_challenge,

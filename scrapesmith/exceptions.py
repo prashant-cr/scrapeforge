@@ -1,12 +1,12 @@
-"""Exception hierarchy for scrapekit.
+"""Exception hierarchy for scrapesmith.
 
-All errors raised by the public API derive from :class:`ScrapekitError`, so callers
+All errors raised by the public API derive from :class:`ScrapesmithError`, so callers
 never have to catch library-internal exceptions (``httpx.ConnectError``,
 ``playwright.Error``, provider SDK errors, ...).
 
 ::
 
-    ScrapekitError
+    ScrapesmithError
     ├── FetchError
     │   ├── AllStrategiesFailed
     │   ├── ChallengeError
@@ -26,7 +26,7 @@ __all__ = [
     "FetchError",
     "ParseError",
     "ProxyError",
-    "ScrapekitError",
+    "ScrapesmithError",
 ]
 
 _SNIPPET_LIMIT = 500
@@ -44,11 +44,11 @@ def _snippet(body: str | bytes | None) -> str | None:
     return body
 
 
-class ScrapekitError(Exception):
-    """Base class for every error raised by scrapekit."""
+class ScrapesmithError(Exception):
+    """Base class for every error raised by scrapesmith."""
 
 
-class FetchError(ScrapekitError):
+class FetchError(ScrapesmithError):
     """A fetch attempt failed.
 
     Attributes:
@@ -107,7 +107,7 @@ class AllStrategiesFailed(FetchError):
 class ChallengeError(FetchError):
     """The response looks like a bot-management interstitial or block page.
 
-    scrapekit deliberately does not attempt to solve challenges. Catch this and
+    scrapesmith deliberately does not attempt to solve challenges. Catch this and
     plug in your own solver, a residential proxy, or back off.
 
     Attributes:
@@ -125,7 +125,7 @@ class ProxyError(FetchError):
     """The configured proxy could not be used (unreachable, refused, bad auth)."""
 
 
-class ParseError(ScrapekitError):
+class ParseError(ScrapesmithError):
     """Extraction failed or the LLM output did not validate against the schema.
 
     Attributes:
@@ -147,5 +147,5 @@ class ParseError(ScrapekitError):
         super().__init__(message)
 
 
-class ConfigError(ScrapekitError):
+class ConfigError(ScrapesmithError):
     """Invalid configuration: unknown strategy, missing API key, missing extra."""

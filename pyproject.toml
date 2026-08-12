@@ -3,23 +3,39 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "scrapekit"
+name = "scrapesmith"
 version = "0.1.0"
 description = "Schema-driven web scraping with layered anti-bot evasion and LLM-based extraction."
 readme = "README.md"
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.10"
-authors = [{ name = "scrapekit contributors" }]
-keywords = ["scraping", "http", "playwright", "pydantic", "llm", "extraction"]
+authors = [{ name = "Prashant Suthar" }]
+keywords = [
+    "scraping",
+    "web-scraping",
+    "crawler",
+    "http",
+    "playwright",
+    "pydantic",
+    "llm",
+    "structured-extraction",
+    "anti-bot",
+    "tls-fingerprint",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3 :: Only",
     "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: Markup :: HTML",
+    "Framework :: AsyncIO",
+    "Typing :: Typed",
 ]
 dependencies = [
     # brotli/zstd are not optional in practice: real browsers advertise them in
@@ -48,14 +64,18 @@ dev = [
     "pytest-asyncio>=0.23",
     "respx>=0.21",
     "ruff>=0.6",
+    "build>=1.2",
+    "twine>=5.1",
 ]
 
 [project.urls]
-Homepage = "https://github.com/your-org/scrapekit"
-Issues = "https://github.com/your-org/scrapekit/issues"
+Homepage = "https://github.com/prashant-cr/scrapekit"
+Source = "https://github.com/prashant-cr/scrapekit"
+Issues = "https://github.com/prashant-cr/scrapekit/issues"
+Changelog = "https://github.com/prashant-cr/scrapekit/releases"
 
 [tool.hatch.build.targets.wheel]
-packages = ["scrapekit"]
+packages = ["scrapesmith"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
@@ -64,7 +84,7 @@ addopts = "--strict-markers"
 markers = [
     "network: reaches a third-party host. Deselect with -m 'not network' for a hermetic run.",
 ]
-filterwarnings = ["error::DeprecationWarning:scrapekit.*"]
+filterwarnings = ["error::DeprecationWarning:scrapesmith.*"]
 
 [tool.ruff]
 line-length = 100
@@ -80,4 +100,4 @@ ignore = ["B008"]
 "tests/*" = ["E501"]
 # User-agent strings are single tokens; wrapping them hurts readability more than
 # it helps, and a mangled UA is a real bug.
-"scrapekit/fingerprint/user_agents.py" = ["E501"]
+"scrapesmith/fingerprint/user_agents.py" = ["E501"]
